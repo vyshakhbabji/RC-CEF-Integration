@@ -1,0 +1,33 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30621.155
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RC-CEF-Integration", "RC-CEF-Integration.csproj", "{4C7C2838-C9FB-477B-B926-A717333FE1DC}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{FF5FBC14-3674-41D7-A16F-A8500E0E7A78}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4C7C2838-C9FB-477B-B926-A717333FE1DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4C7C2838-C9FB-477B-B926-A717333FE1DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4C7C2838-C9FB-477B-B926-A717333FE1DC}.Debug|x64.ActiveCfg = Debug|x64
+		{4C7C2838-C9FB-477B-B926-A717333FE1DC}.Debug|x64.Build.0 = Debug|x64
+		{4C7C2838-C9FB-477B-B926-A717333FE1DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4C7C2838-C9FB-477B-B926-A717333FE1DC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4C7C2838-C9FB-477B-B926-A717333FE1DC}.Release|x64.ActiveCfg = Release|x64
+		{4C7C2838-C9FB-477B-B926-A717333FE1DC}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2C960E0F-16B3-42E7-830A-5824BBDF825B}
+	EndGlobalSection
+EndGlobal

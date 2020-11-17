@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>RC-CEF-Integration</id>
+    <version>1.0.0</version>
+    <authors>RC-CEF-Integration</authors>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Package Description</description>
+    <dependencies>
+      <group targetFramework=".NETCoreApp3.1">
+        <dependency id="CefSharp.Wpf" version="85.3.130" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.CSharp" version="4.7.0" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.NETCore" version="5.0.2" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.NETCore.Runtime" version="1.0.1" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Xaml.Behaviors.Wpf" version="1.1.19" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+    <frameworkReferences>
+      <group targetFramework=".NETCoreApp3.1">
+        <frameworkReference name="Microsoft.WindowsDesktop.App.WPF" />
+      </group>
+    </frameworkReferences>
+  </metadata>
+  <files>
+    <file src="C:\Users\vysha\Desktop\RC_Fresh-WPF\RC-CEF-Integration\bin\x64\Release\netcoreapp3.1\RC-CEF-Integration.runtimeconfig.json" target="lib\netcoreapp3.1\RC-CEF-Integration.runtimeconfig.json" />
+    <file src="C:\Users\vysha\Desktop\RC_Fresh-WPF\RC-CEF-Integration\bin\x64\Release\netcoreapp3.1\RC-CEF-Integration.dll" target="lib\netcoreapp3.1\RC-CEF-Integration.dll" />
+  </files>
+</package>
