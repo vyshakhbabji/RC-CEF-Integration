@@ -149,7 +149,7 @@ export default class WebPhone {
 
         const sessionDescriptionHandlerFactory = function(session, options) {
             const logger: Logger = session.ua.getLogger(
-                'sip.invitecontext.defaultSessionDescriptionHandler',
+                'sip.invitecontext.rcStackSessionDescriptionHandler',
                 session.id
             );
             const observer: SessionDescriptionHandlerObserver = new SessionDescriptionHandlerObserver(session, options);
