@@ -1,6 +1,8 @@
 const SIP = require('sip.js');
 const getStats = require('getstats');
 const $ = require('jquery');
+const vdi = require('../src/rcs/dist/VDIWebRTC')
+
 
 window.jQuery = $;
 window.getStats = getStats;
@@ -28,12 +30,152 @@ $(function() {
     var $callTemplate = $('#template-call');
     var $incomingTemplate = $('#template-incoming');
     var $acceptedTemplate = $('#template-accepted');
+    window.acceptedTemplate = $acceptedTemplate;
+    var $globalDevices = $('#globalDevices');
 
-    var remoteVideoElement = document.getElementById('remoteVideo');
-    var localVideoElement = document.getElementById('localVideo');
+    var remoteVideoElement = document.getElementById('remoteVideo');//ui.video.localVideo -VDILocal
+    var localVideoElement = document.getElementById('localVideo');//ui.video.remoteVideo - VDIRemote
+    var videoElement = document.querySelector('video');
+
+    navigator.mediaDevices.addEventListener('devicechange', (event) => {
+        console.log('Device Changed / updated',event);
+    })
+
+    localVideoElement.addEventListener('loadedmetadata', event => {
+        console.log('localVideo element ready ', event);
+    })
+
+
+    remoteVideoElement.addEventListener('loadedmetadata', event => {
+        console.log('remotevideo element ready ', event);
+    })
+
+    var localStream = null;
+    var remoteStream = null;
+
+    const audioInputSelect = document.querySelector('select#audioSource'); // selector - vdiAudioInput
+    const audioOutputSelect = document.querySelector('select#audioOutput'); // selector - vdiAudioOutput
+    const videoInputSelect = document.querySelector('select#videoSource'); // selector - vdiVideoInput
+    const selectors = [audioInputSelect, audioOutputSelect, videoInputSelect];
+    audioOutputSelect.disabled = !('sinkId' in HTMLMediaElement.prototype);
+
+    var inputDeviceID = '';
+
+    /******************************************************************************************************************************************/
+
+    function initRCStack(){
+        var vmManager = new vdi.VMManager();
+        vmManager.initVMManager();
+    }
+
+
+    function gotDevices(deviceInfos) {
+        // Handles being called several times to update labels. Preserve values.
+        const values = selectors.map(select => select.value);
+        selectors.forEach(select => {
+            while (select.firstChild) {
+                select.removeChild(select.firstChild);
+            }
+        });
+        for (let i = 0; i !== deviceInfos.length; ++i) {
+
+            const deviceInfo = deviceInfos[i];
+            console.log(deviceInfos[i]);
+            const option = document.createElement('option');
+            option.value = deviceInfo.deviceId;
+            if (deviceInfo.kind === 'audioinput') {
+                option.text = deviceInfo.label || `microphone ${audioInputSelect.length + 1}`;
+                audioInputSelect.appendChild(option);
+            } else if (deviceInfo.kind === 'audiooutput') {
+                option.text = deviceInfo.label || `speaker ${audioOutputSelect.length + 1}`;
+                audioOutputSelect.appendChild(option);
+            } else if (deviceInfo.kind === 'videoinput') {
+                option.text = deviceInfo.label || `cam ${videoInputSelect.length + 1}`;
+                videoInputSelect.appendChild(option);
+            } else {
+                console.log('Some other kind of source/device: ', deviceInfo);
+            }
+        }
+        selectors.forEach((select, selectorIndex) => {
+            if (Array.prototype.slice.call(select.childNodes).some(n => n.value === values[selectorIndex])) {
+                select.value = values[selectorIndex];
+            }
+        });
+    }
+
+    /******************************************************************************************************************************************/
+
+
+    // Attach audio output device to video element using device/sink ID.
+    function attachSinkId(element, sinkId) {
+        if (typeof element.sinkId !== 'undefined') {
+            element
+                .setSinkId(sinkId)
+                .then(() => {
+                    console.log(`Success, audio output device attached: ${sinkId}`);
+                })
+                .catch(error => {
+                    let errorMessage = error;
+                    if (error.name === 'SecurityError') {
+                        errorMessage = `You need to use HTTPS for selecting audio output device: ${error}`;
+                    }
+                    console.log(errorMessage);
+                    // Jump back to first output device in the list as it's the default.
+                    audioOutputSelect.selectedIndex = 0;
+                });
+        } else {
+            console.warn('Browser does not support output device selection.');
+        }
+    }
+
+    /******************************************************************************************************************************************/
+
+
+    function changeAudioDestination() {
+        const audioDestination = audioOutputSelect.value;
+        attachSinkId(videoElement, audioDestination);
+    }
+
+    function gotStream(session, stream) {
+        // session.replaceLocalTrack(stream);
+        console.warn('calling vdi.mediaDevices.enumerateDevices()')
+        return vdi.mediaDevices.enumerateDevices();
+    }
+
+    function handleError(error) {
+        console.log('getUserMedia error: ', error);
+    }
+
+    /******************************************************************************************************************************************/
+
+    window.onload = function () {
+        var element = document.getElementById('localVideo');
+        element.muted = "muted";
+    }
+
+    function start(session) {
+        if (window.stream) {
+            window.stream.getTracks().forEach(track => {
+                track.stop();
+            });
+        }
+        const audioSource = audioInputSelect.value;
+
+        console.log('audioSource is ', audioSource);
+
+        const constraints = {
+            audio: {deviceId: audioSource ? {exact: audioSource} : undefined}
+        };
+    }
+
+    /******************************************************************************************************************************************/
+
+
     var activeCallInfo = '';
     var outboundCall = true;
     var confSessionId = '';
+
+    console.warn('intiating rcstack',vdi);
 
     /**
      * @param {jQuery|HTMLElement} $tpl
@@ -154,7 +296,7 @@ $(function() {
                 local: localVideoElement
             },
             enableQos: true,
-            enableMediaReportLogging: true
+            enableMediaReportLogging: false
         });
 
         webPhone.userAgent.audioHelper.loadAudio({
@@ -323,6 +465,13 @@ $(function() {
         var $flip = $modal.find('input[name=flip]').eq(0);
         var $conference = $modal.find('input[name=conference]').eq(0);
 
+        var $callDevices = $modal.find('#callDevices').eq(0);
+        var $devicesSelects = $globalDevices.children();
+        for (var i = 0; i < $devicesSelects.length; i++) {
+            var newChild = $devicesSelects[i];
+            $callDevices.append(newChild);
+        }
+
         var interval = setInterval(function() {
             var time = session.startTime ? Math.round((Date.now() - session.startTime) / 1000) + 's' : 'Ringing';
 
@@ -331,6 +480,11 @@ $(function() {
 
         function close() {
             clearInterval(interval);
+            var $devicesSelects = $callDevices.children();
+            for (var i = 0; i < $devicesSelects.length; i++) {
+                var newChild = $devicesSelects[i];
+                $globalDevices.append(newChild);
+            }
             $modal.modal('hide');
         }
 
@@ -476,6 +630,11 @@ $(function() {
 
         session.on('accepted', function() {
             console.log('Event: Accepted');
+            audioInputSelect.onchange = function() {
+                start(session);
+            };
+            audioOutputSelect.onchange = changeAudioDestination;
+            start(session);
             captureActiveCallInfo(session);
         });
         session.on('progress', function() {
@@ -526,6 +685,9 @@ $(function() {
     }
 
     function makeCall(number, homeCountryId) {
+
+        console.warn('calling vdi.enumerateDevices()');
+        vdi.enumerateDevices().then(gotDevices).then(handleError);
         outboundCall = true;
         homeCountryId =
             homeCountryId ||
@@ -652,8 +814,11 @@ $(function() {
     }
 
     function makeLoginForm() {
+        initRCStack();
         var $form = cloneTemplate($loginTemplate);
         var $authForm = cloneTemplate($authFlowTemplate);
+        console.warn('calling vdi.enumerateDevices()')
+        vdi.enumerateDevices().then(gotDevices).then(handleError);
 
         var $server = $authForm.find('input[name=server]').eq(0);
         var $appKey = $authForm.find('input[name=appKey]').eq(0);

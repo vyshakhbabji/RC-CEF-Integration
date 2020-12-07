@@ -44,69 +44,69 @@ export interface RTCPeerConnectionLegacy extends RTCPeerConnection {
 
 export type WebPhoneSession = InviteClientContext &
     InviteServerContext & {
-        __sendRequest: typeof InviteServerContext.prototype.sendRequest;
-        __receiveRequest: typeof InviteServerContext.prototype.receiveRequest;
-        __accept: typeof InviteServerContext.prototype.accept;
-        __hold: typeof InviteClientContext.prototype.hold;
-        __unhold: typeof InviteClientContext.prototype.unhold;
-        __dtmf: typeof InviteClientContext.prototype.dtmf;
-        __reinvite: typeof InviteClientContext.prototype.reinvite;
-        sendRequest: typeof sendRequest;
-        receiveRequest: typeof receiveRequest;
-        accept: typeof accept;
-        hold: typeof hold;
-        unhold: typeof unhold;
-        dtmf: typeof dtmf;
-        reinvite: typeof reinvite;
-        _sendReceiveConfirmPromise: Promise<any>;
-        ua: WebPhoneUserAgent;
-        local_hold: boolean;
-        failed: any; //FIXME PROTECTED
-        sessionDescriptionHandler: {
-            peerConnection: RTCPeerConnectionLegacy; //FIXME Not documented
-            getDirection;
-        };
-        // non-sip
-        __patched: boolean;
-        __onRecord: boolean;
-        hasAnswer: boolean;
-        media: any;
-        rcHeaders: RCHeaders;
-        warmTransfer: typeof warmTransfer;
-        blindTransfer: typeof blindTransfer;
-        transfer: typeof transfer;
-        park: typeof park;
-        forward: typeof forward;
-        startRecord: typeof startRecord;
-        stopRecord: typeof stopRecord;
-        flip: typeof flip;
-        whisper: typeof whisper;
-        barge: typeof barge;
-        mute: typeof mute;
-        unmute: typeof unmute;
-        onLocalHold: typeof onLocalHold;
-        addTrack: typeof addTrack;
-        canUseRCMCallControl: typeof canUseRCMCallControl;
-        createSessionMessage: typeof createSessionMessage;
-        sendSessionMessage: typeof sendSessionMessage;
-        sendReceiveConfirm: typeof sendReceiveConfirm;
-        ignore: typeof ignore;
-        toVoicemail: typeof toVoicemail;
-        replyWithMessage: typeof replyWithMessage;
-        logger: any;
-        on(event: 'muted' | 'unmuted', listener: (session: WebPhoneSession) => void): WebPhoneSession;
-        mediaStreams: MediaStreams;
-        mediaStatsStarted: boolean;
-        noAudioReportCount: number;
-        reinviteForNoAudioSent: boolean;
-        stopMediaStats: typeof stopMediaStats;
-        receiveReinviteResponse: any;
-        pendingReinvite: boolean;
-        sendReinvite: Promise<any>;
-        _sendReinvite: typeof sendReinvite;
-        getIncomingInfoContent: typeof getIncomingInfoContent;
-        sendMoveResponse: typeof sendMoveResponse;
+    __sendRequest: typeof InviteServerContext.prototype.sendRequest;
+    __receiveRequest: typeof InviteServerContext.prototype.receiveRequest;
+    __accept: typeof InviteServerContext.prototype.accept;
+    __hold: typeof InviteClientContext.prototype.hold;
+    __unhold: typeof InviteClientContext.prototype.unhold;
+    __dtmf: typeof InviteClientContext.prototype.dtmf;
+    __reinvite: typeof InviteClientContext.prototype.reinvite;
+    sendRequest: typeof sendRequest;
+    receiveRequest: typeof receiveRequest;
+    accept: typeof accept;
+    hold: typeof hold;
+    unhold: typeof unhold;
+    dtmf: typeof dtmf;
+    reinvite: typeof reinvite;
+    _sendReceiveConfirmPromise: Promise<any>;
+    ua: WebPhoneUserAgent;
+    local_hold: boolean;
+    failed: any; //FIXME PROTECTED
+    sessionDescriptionHandler: {
+        peerConnection: RTCPeerConnectionLegacy; //FIXME Not documented
+        getDirection;
     };
+    // non-sip
+    __patched: boolean;
+    __onRecord: boolean;
+    hasAnswer: boolean;
+    media: any;
+    rcHeaders: RCHeaders;
+    warmTransfer: typeof warmTransfer;
+    blindTransfer: typeof blindTransfer;
+    transfer: typeof transfer;
+    park: typeof park;
+    forward: typeof forward;
+    startRecord: typeof startRecord;
+    stopRecord: typeof stopRecord;
+    flip: typeof flip;
+    whisper: typeof whisper;
+    barge: typeof barge;
+    mute: typeof mute;
+    unmute: typeof unmute;
+    onLocalHold: typeof onLocalHold;
+    addTrack: typeof addTrack;
+    canUseRCMCallControl: typeof canUseRCMCallControl;
+    createSessionMessage: typeof createSessionMessage;
+    sendSessionMessage: typeof sendSessionMessage;
+    sendReceiveConfirm: typeof sendReceiveConfirm;
+    ignore: typeof ignore;
+    toVoicemail: typeof toVoicemail;
+    replyWithMessage: typeof replyWithMessage;
+    logger: any;
+    on(event: 'muted' | 'unmuted', listener: (session: WebPhoneSession) => void): WebPhoneSession;
+    mediaStreams: MediaStreams;
+    mediaStatsStarted: boolean;
+    noAudioReportCount: number;
+    reinviteForNoAudioSent: boolean;
+    stopMediaStats: typeof stopMediaStats;
+    receiveReinviteResponse: any;
+    pendingReinvite: boolean;
+    sendReinvite: Promise<any>;
+    _sendReinvite: typeof sendReinvite;
+    getIncomingInfoContent: typeof getIncomingInfoContent;
+    sendMoveResponse: typeof sendMoveResponse;
+};
 
 export const patchSession = (session: WebPhoneSession): WebPhoneSession => {
     if (session.__patched) return session;
@@ -492,19 +492,19 @@ function sendMoveResponse(this: WebPhoneSession,
                           description: string,
                           options: any = {}) {
     const extraHeaders = [...(options.extraHeaders || []),
-                          ...this.ua.defaultHeaders,
-                          'Content-Type: application/json;charset=utf-8'];
+        ...this.ua.defaultHeaders,
+        'Content-Type: application/json;charset=utf-8'];
     this.sendRequest(C.INFO, {
         body: JSON.stringify(
             {response: {
-                reqId,
-                command: 'move',
-                result: {
-                    code,
-                    description
+                    reqId,
+                    command: 'move',
+                    result: {
+                        code,
+                        description
+                    }
                 }
-            }
-        }),
+            }),
         extraHeaders});
 }
 
@@ -516,9 +516,9 @@ function receiveRequest(this: WebPhoneSession, request): any {
             if (content?.request?.reqId
                 && content?.request?.command === 'move'
                 && content?.request?.target === 'rcv') {
-                    request.reply(200);
-                    this.emit('moveToRcv', content.request);
-                    return this;
+                request.reply(200);
+                this.emit('moveToRcv', content.request);
+                return this;
             }
             // For other SIP INFO from server
             this.emit('RC_SIP_INFO', request);

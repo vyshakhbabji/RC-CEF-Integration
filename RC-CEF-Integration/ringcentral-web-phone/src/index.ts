@@ -5,9 +5,12 @@ import {uuid, delay, extend} from './utils';
 import {WebPhoneSession} from './session';
 import {AudioHelperOptions} from './audioHelper';
 import {default as MediaStreams, MediaStreamsImpl} from './mediaStreams';
+import {RCStackSessionDescriptionHandler} from './RCStackSessionDescriptionHandler';
+import {Logger} from 'sip.js/types/logger-factory';
+import {SessionDescriptionHandlerObserver} from 'sip.js/lib/Web/SessionDescriptionHandlerObserver';
+
 
 const {version} = require('../package.json');
-
 export interface WebPhoneRegData {
     sipInfo?: any;
     sipFlags?: any;
@@ -142,7 +145,16 @@ export default class WebPhone {
             sessionDescriptionHandlerFactoryOptions.alwaysAcquireMediaFirst = true;
         }
 
-        const sessionDescriptionHandlerFactory = options.sessionDescriptionHandlerFactory || [];
+        //const sessionDescriptionHandlerFactory = options.sessionDescriptionHandlerFactory || [];
+
+        const sessionDescriptionHandlerFactory = function(session, options) {
+            const logger: Logger = session.ua.getLogger(
+                'sip.invitecontext.defaultSessionDescriptionHandler',
+                session.id
+            );
+            const observer: SessionDescriptionHandlerObserver = new SessionDescriptionHandlerObserver(session, options);
+            return new RCStackSessionDescriptionHandler(logger, observer, sessionDescriptionHandlerFactoryOptions);
+        };
 
         const sipErrorCodes =
             regData.sipErrorCodes && regData.sipErrorCodes.length
